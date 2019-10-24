@@ -1,0 +1,11 @@
+.idea
+.workspace
+.DS_Store
+*.iml
+out
+
+
+# A bit too heavy, backup manually now
+data_saved
+data_output
+data_bkp
