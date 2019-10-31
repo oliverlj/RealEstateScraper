@@ -1,6 +1,6 @@
-# ParseImmo
-
-This small java program scrapes all French cities' real estate infos and local infos from the website _MeilleursAgents.com_
+# What does it do ?
+This Java program scrapes all French cities' (there are about 35 000) real estate and local infos from the website _MeilleursAgents.com_
+It saves them in Java Object format and then formats them in a usable way and outputs them in .CSV format.
 
 ## How-to
 ### Import in Excel
