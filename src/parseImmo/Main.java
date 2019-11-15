@@ -16,6 +16,7 @@ import java.io.*;
 import java.util.ArrayList;
 
 public class Main {
+    private static final String projectName = "RealEstateScraper" ;
 
     // urls
     private static final String url_main = "https://www.meilleursagents.com" ;
@@ -26,8 +27,8 @@ public class Main {
     private static final String output_folder = "data_output/";
     // paths
     private static final String root_path = "/Users/c/Documents/Local Code/";
-    private static final String save_path = root_path + "ParseImmo/" + save_folder;
-    private static final String output_path = root_path + "ParseImmo/" + output_folder;
+    private static final String save_path = root_path + projectName + "/" + save_folder;
+    private static final String output_path = root_path + projectName + "/" + output_folder;
 
     // file names
     private static final String filename_cities_urls = "urls";
