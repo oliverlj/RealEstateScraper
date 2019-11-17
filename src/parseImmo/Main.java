@@ -36,6 +36,7 @@ public class Main {
     // file extensions
     private static final String extension_save = ".immo";
     private static final String extension_csv = ".csv";
+    private static final String NO_DATA = "null";
 
     private static final int nb_max_trys = 5 ; // number of tries before changing pool
     private static final int max_pool_change = 52; // at 53, starts again at the beginning (Australia)
@@ -293,8 +294,10 @@ public class Main {
                         "evol taux chomage",
                         "evol taux activite"
                 };
-                for (String header : headers) { bw.write(header + ","); }
-                bw.newLine();
+                writeLine(bw, headers, true);
+
+//                for (String header : headers) { bw.write(header + ","); }
+//                bw.newLine();
             }
 
             // II) then writes data cell by cell
@@ -367,10 +370,14 @@ public class Main {
                         employmentRateEvol
                 };
 
-                for (String attr : main_attrs) { bw.write(attr + ","); }
-                for (String attr : prices_attrs) { bw.write(attr + ","); }
-                for (String attr : local_attrs) { bw.write(attr + ","); }
-                bw.newLine();
+                writeLine(bw, main_attrs, false);
+                writeLine(bw, prices_attrs, false);
+                writeLine(bw, local_attrs, true);
+
+//                for (String attr : main_attrs) { bw.write(attr + ","); }
+//                for (String attr : prices_attrs) { bw.write(attr + ","); }
+//                for (String attr : local_attrs) { bw.write(attr + ","); }
+//                bw.newLine();
             }
 
             bw.close();
@@ -381,5 +388,26 @@ public class Main {
         }
     }
 
+
+    private static void writeLine(BufferedWriter bw, String[] attrsToWrite, boolean endOfLine) {
+        try
+        {
+            int attr_index = 0;
+            for (String attr : attrsToWrite)
+            {
+                if (attr != null) bw.write(attr);
+                else bw.write(NO_DATA);
+
+                attr_index ++;
+                if (attr_index < attrsToWrite.length) {
+                    bw.write(",");
+                } else if (! endOfLine) {
+                    bw.write(",");
+                }
+            }
+            if (endOfLine) bw.newLine();
+
+        } catch (IOException e) { Disp.exc(e); }
+    }
 
 }

@@ -42,15 +42,10 @@ public class ReadWriteFile
         {
             File f = new File(path);
 
-            if (!f.exists())
-            {
-                f.createNewFile();
-            }
+            if (!f.exists()) f.createNewFile();
 
             FileWriter fw = new FileWriter(f);
-            BufferedWriter bw = new BufferedWriter(fw);
-
-            return bw ;
+            return new BufferedWriter(fw);
         }
         catch (IOException e) {
             e.printStackTrace();
