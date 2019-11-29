@@ -1,8 +1,5 @@
 package parseImmo;
 
-import handleVPN.ChangeIP;
-import handleVPN.ChangePool;
-import handleVPN.Country;
 import myJavaClasses.*;
 import org.jsoup.UncheckedIOException;
 import org.jsoup.nodes.Document;
@@ -11,9 +8,11 @@ import parseCity.ExtractLocalInfos;
 import parseCity.ParseCity;
 import parseDepartment.Department;
 import parseDepartment.ParseDepartment;
+import handleVPN.*;
 
 import java.io.*;
 import java.util.ArrayList;
+
 
 public class Main {
     private static final String projectName = "RealEstateScraper" ;
@@ -43,31 +42,32 @@ public class Main {
 
     //////////////////////////////////////////////////////////
 
-    public static void main_(String[] args)
-            throws Country.CountryNotFoundException, Country.PoolNotFoundInCountryException
+    public static void main(String[] args) throws IOException
     {
+        HandleVPN.displayBeginningCountryAndPool();
 
-        Country.initAllVPNCountries(); // inits objects in static arraylist
-        ChangePool.displayBeginningCountryAndPool();
+        Runtime runtime = Runtime.getRuntime();
+        Process p = runtime.exec("piactl get region");
 
-        for (int i=0 ; i < max_pool_change ; i++) {
-            new ChangePool();
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            Disp.anyType(line);
         }
     }
 
 
 
-    public static void main(String[] args)
-            throws Country.CountryNotFoundException, Country.PoolNotFoundInCountryException
+    public static void main_(String[] args) throws IOException
     {
-        Disp.shortMsgLine("ParseImmo", false);
+        Disp.shortMsgLine(projectName, false);
 
         // some quick fixes before anything
         double start = System.currentTimeMillis(); // start counter
         SaveManager.setSavePath(save_path);
 
-        Country.initAllVPNCountries(); // inits objects in static arraylist
-        ChangePool.displayBeginningCountryAndPool();
+        HandleVPN.displayBeginningCountryAndPool();
 
         // restart infinitely until everything is scraped
         try {
@@ -223,12 +223,12 @@ public class Main {
                     }
 
                     // after too many request failures...
-                    if (nb_max_trys >= nbTrys)
+                    if (nb_max_trys >= nbTrys) {
                         // first try to fix the problem by changing IP in the same pool.
-                        new ChangeIP(nbIPChanges, nbTrys);
-                    else {
+                        // TODO
+                    } else {
                         // then try to switch to the next pool
-                        new ChangePool();
+                        // TODO
                         // resets counters
                         nbTrys = 0;
                         nbIPChanges = 0;
