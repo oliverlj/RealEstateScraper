@@ -155,7 +155,7 @@ public class Main {
         }
 
         Disp.htag(); Disp.htag(); Disp.htag();
-        int nbRetries = 0;
+        int nbRetries_thisSess = 0;
         int nbDone = 0;
 //        int nbIPChanges = 0;
         boolean needsSave = false;
@@ -179,7 +179,7 @@ public class Main {
                     cities.add(city);
 
                     // success : resets try counter and increments done counter
-                    nbRetries = 0;
+                    nbRetries_thisSess = 0;
                     nbDone++;
                     // puts the trigger on after a city has been scraped since last save
                     needsSave = true;
@@ -199,16 +199,16 @@ public class Main {
                     */
 
                     // failure : increments try counter
-                    nbRetries ++;
+                    nbRetries_thisSess ++;
 
                     // disp err msg
                     Disp.exc("Quota maximum reached for [" + IP.getCurrent().getAddress() + "] -- Let's try again with another one ;)");
-//                    Disp.progress("consecutive max retries for " + IP.getCurrent().getAddress(), nbRetries, Region.getCurrent().getGlobalSaturationIndicator());
+//                    Disp.progress("consecutive max retries for " + IP.getCurrent().getAddress(), nbRetries_thisSess, Region.getCurrent().getGlobalSaturationIndicator());
 //                    Disp.exc(e.getCause() + " | " + e.getMessage());
 //                    e.printStackTrace();
 
                     // save actual progress only first time, only if changes have been made
-                    if (nbRetries == 1)
+                    if (nbRetries_thisSess == 1)
                     {
                         // mark current IP as used & update last try date
                         IP.getCurrent().setTimesUsed(IP.getCurrent().getTimesUsed() + 1);
@@ -241,7 +241,7 @@ public class Main {
                         // then try to switch to the next region
                         Region.handleChange();
                         // resets counters : not useful anymore
-                        nbRetries = 0;
+                        nbRetries_thisSess = 0;
 //                        nbIPChanges = 0;
                     }
                     // show current VPN state
@@ -257,7 +257,7 @@ public class Main {
 
             } else {
                 // success : resets try counter and increment done counter
-                nbRetries = 0;
+                nbRetries_thisSess = 0;
                 nbDone++;
             }
 
