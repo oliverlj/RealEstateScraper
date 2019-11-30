@@ -1,10 +1,14 @@
 ## What does it do ?
-This Java program scrapes all French cities' (there are about 35 000) real estate and local infos from the website _MeilleursAgents.com_
-It saves them in Java Object format and then formats them in a usable way and outputs them in .CSV format.
-It also handles Private Internet Acces VPN to change IP as much as needed to bypass the website's limitations until all pages are scraped.
+This Java program scrapes all French cities' (there are about 35 000) real estate and local infos from the website _MeilleursAgents.com_  
+It saves them in Java Object format and then formats them in a usable way and outputs them in .CSV format.  
+It also handles Private Internet Acces VPN to change IP as much as needed to bypass the website's limitations until all pages are scraped.  
 
 ## What's new ?
 ### To-do
+- Minimise time of calculation for saturated IPs
+    - Try to play with `nbRetries` to get retry percentage 
+- For each IP, calculate delay and sort it automatically
+- Detect max number of pools using percentages and nb max after which the IP is considered drained.
 - Fix problem with program not loading if VPN deactivated —> run with PIA already on for now
 - Record exactly all the dates and time where the IP address has been tested and its disponibility for each datetime
 ### Done

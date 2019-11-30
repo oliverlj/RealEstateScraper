@@ -12,6 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class IP implements Serializable {
+    // above which number of failures each IP is considered blocked
+    public static final int nb_max_each_ip = 3;
+
     public static final String NO_IP = "Unknown";
     public static final String NO_DATE = "°";
 
@@ -28,7 +31,7 @@ public class IP implements Serializable {
     public String toString() {
         String lastTry_raw;
         try {
-             lastTry_raw = this.getLastTry().format(DateTimeFormatter.ofPattern("uuuu/MM/dd/ HH:mm.ss"));
+             lastTry_raw = this.getLastTry().format(DateTimeFormatter.ofPattern("uuuu/MM/dd HH:mm.ss"));
         } catch (NullPointerException npEx) {
              lastTry_raw = NO_DATE;
         }
@@ -60,7 +63,7 @@ public class IP implements Serializable {
     }
 
     public boolean isBlocked() {
-        return this.timesUsed > 0;
+        return this.timesUsed >= nb_max_each_ip;
     }
 
     ////////////////////////// STATIC //////////////////////////
@@ -74,7 +77,6 @@ public class IP implements Serializable {
         ShellWrapper.execute("piactl disconnect");
         ShellWrapper.execute("piactl connect");
         // 3) new IP is ?
-        // 4) does it already exist ?
         IP newIP = getCurrent();
         // 1) increment current ip counter
         getCurrent().setTimesUsed(getCurrent().getTimesUsed() + 1);

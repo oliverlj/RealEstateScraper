@@ -86,6 +86,8 @@ public class HandleVPN {
         // inits current state
         if (IP.getCurrent().equals(NO_IP))
         {
+            String r = ShellWrapper.execute("piactl get region").get(0);
+
             ShellWrapper.execute("piactl connect");
 
             String s = IP.NO_IP;

@@ -9,7 +9,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Region implements Serializable {
-    private static final int nb_max_blocked_addresses = 10 ; // above which region is considered completely drained
+    // above which region is considered completely drained
+    private static final int nb_max_blocked_addresses = 4;
+    // ireland : 9
+    // belgium : 6
+    // luxembourg : 5
+    // spain : 4
+    // all others are above the smallest.
 
     private static ArrayList<Region> regions = new ArrayList<>();
 
@@ -45,14 +51,34 @@ public class Region implements Serializable {
         for (IP ip : this.getIpAddresses()) {
             if (ip.isBlocked()) blockedCounter ++;
         }
-//        Disp.progress(this.getName(), blockedCounter, this.getIpAddresses().size());
 
         // different ways of saying a region is saturated
-//        boolean saturated = this.getIpAddresses().size() > 0 && this.getIpAddresses().size() == blockedCounter;
-        boolean saturated = this.getIpAddresses().size() > Region.nb_max_blocked_addresses;
+//        int ip_saturation_limit = 2 + this.getIpAddresses().size() / 3; // with / 2
+//        int ip_saturation_limit = 2 + this.getIpAddresses().size() / 4; // without / 2
+        int ip_saturation_limit = 3 + this.getIpAddresses().size() / 6; // ???
+
+        Disp.progress("IP saturation rate of " + this.getName(), blockedCounter, this.getIpAddresses().size());
+        Disp.progress("IP saturation limit of " + this.getName(), blockedCounter, ip_saturation_limit);
+        Disp.star();
+
+//        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > (ip_saturation_limit) / 2;
+        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > (ip_saturation_limit);
+//        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > this.getIpAddresses().size() / 6;
+//        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > nb_max_blocked_addresses;
+//        boolean saturated = this.getIpAddresses().size() >= Region.nb_max_blocked_addresses;
+//        boolean saturated = this.allAIPsSaturated();
 
 //        Disp.anyType("saturated: " + saturated);
         return saturated;
+    }
+
+    public int getGlobalSaturationIndicator()
+    {
+        int indicator = 0;
+        for (IP ip : this.getIpAddresses()) {
+            indicator += ip.getTimesUsed();
+        }
+        return indicator;
     }
 
     public static ArrayList<Region> getRegions() {

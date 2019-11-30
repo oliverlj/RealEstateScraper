@@ -202,9 +202,10 @@ public class Main {
                     nbRetries ++;
 
                     // disp err msg
-                    Disp.exc("Quota maximum reached for this IP -- Let's try again with another one ;)");
+                    Disp.exc("Quota maximum reached for [" + IP.getCurrent().getAddress() + "] -- Let's try again with another one ;)");
+//                    Disp.progress("consecutive max retries for " + IP.getCurrent().getAddress(), nbRetries, Region.getCurrent().getGlobalSaturationIndicator());
 //                    Disp.exc(e.getCause() + " | " + e.getMessage());
-                    e.printStackTrace();
+//                    e.printStackTrace();
 
                     // save actual progress only first time, only if changes have been made
                     if (nbRetries == 1)
@@ -229,6 +230,12 @@ public class Main {
                         // first try to fix the problem by changing IP in the same region.
                         IP.handleChange();
 
+                        // is this IP already blocked ?
+                        while (IP.getCurrent().isBlocked()) {
+                            Disp.anyType(">>> [" + IP.getCurrent().getAddress() + "] has already failed more than " + IP.nb_max_each_ip + " times —> trying another one");
+                            IP.handleChange();
+                        }
+
                     // ...when limit reached go to next region
                     } else {
                         // then try to switch to the next region
@@ -239,7 +246,7 @@ public class Main {
                     }
                     // show current VPN state
                     HandleVPN.displayCurrentRegionAndIP();
-                    HandleVPN.displayGlobalState();
+//                    HandleVPN.displayGlobalState();
 
                     index_city--; // stay on that level. Must be parsed
                 }
