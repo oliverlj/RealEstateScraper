@@ -1,42 +1,98 @@
 package handleVPN;
 
-public class IP {
+import myJavaClasses.SaveManager;
+import myJavaClasses.ShellWrapper;
+import parseImmo.Main;
+
+import java.io.Serializable;
+import java.sql.Time;
+import java.util.ArrayList;
+
+public class IP implements Serializable {
+    private static ArrayList<IP> ips = new ArrayList<>();
 
     private String address;
-    private boolean alreadyUsed = false;
-    private boolean blocked = false;
+    private int timesUsed = 0;
+
+    public static final String NO_IP = "Unknown";
 
     public IP(String address) {
         this.address = address;
     }
 
+    @Override
+    public String toString() {
+        return this.getAddress() + " (used " + this.getTimesUsed() + " times)";
+    }
+
+
     public String getAddress() {
         return address;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public int getTimesUsed() {
+        return timesUsed;
     }
 
-    public boolean isAlreadyUsed() {
-        return alreadyUsed;
-    }
-
-    public void setAlreadyUsed(boolean alreadyUsed) {
-        this.alreadyUsed = alreadyUsed;
+    public void setTimesUsed(int timesUsed) {
+        this.timesUsed = timesUsed;
     }
 
     public boolean isBlocked() {
-        return blocked;
+        return this.timesUsed > 0;
     }
 
-    public void setBlocked(boolean blocked) {
-        this.blocked = blocked;
+    public static ArrayList<IP> getIps() {
+        return ips;
     }
 
-    /////////////
+    ////////////////////////// STATIC //////////////////////////
 
-    public static String getCurrentFinalIP() {
-        return "";
+    public static IP handleChange()
+    {
+        // 1) increment current ip counter
+        getCurrent().setTimesUsed(getCurrent().getTimesUsed() + 1);
+        // 2) on/off : gives a new ip
+        ShellWrapper.execute("piactl disconnect");
+        ShellWrapper.execute("piactl connect");
+        // 3) new IP is ?
+        // 4) does it already exist ?
+        IP newIP = getCurrent();
+        // now save
+        SaveManager.objectSave(Main.filename_vpn_state, Region.getRegions());
+        return newIP;
     }
+
+    static IP getCurrent()
+    {
+        String s = NO_IP;
+        while (s.equals(NO_IP)) {
+            s = ShellWrapper.execute("piactl get vpnip").get(0);
+        }
+//        Disp.anyType(s);
+        // now determine if the IP already exists or not
+        IP ip = createOrGet(s);
+        return ip;
+    }
+
+    private static IP getFromString(String s)
+    {
+        for (Region region : Region.getRegions()) {
+            for (IP ip : region.getIpAddresses()) {
+                if (ip.getAddress().equals(s)) return ip;
+            }
+        }
+        return null;
+    }
+
+    private static IP createOrGet(String s)
+    {
+        IP ip = getFromString(s);
+        if (ip == null) { // create it
+            ip = new IP(s);
+            Region.getCurrent().getIpAddresses().add(ip);
+        }
+        return ip;
+    }
+
 }

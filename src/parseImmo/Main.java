@@ -32,6 +32,7 @@ public class Main {
     // file names
     private static final String filename_cities_urls = "urls";
     private static final String filename_cities_list = "cities";
+    public static final String filename_vpn_state = "regions";
     // file extensions
     private static final String extension_save = ".immo";
     private static final String extension_csv = ".csv";
@@ -42,24 +43,22 @@ public class Main {
 
     //////////////////////////////////////////////////////////
 
-    public static void main(String[] args) throws IOException
+    public static void main_(String[] args) throws Exception
     {
-        HandleVPN.displayBeginningCountryAndPool();
+        HandleVPN.initAllRegions();
+        // check if VPN is connected or not.
 
-        Runtime runtime = Runtime.getRuntime();
-        Process p = runtime.exec("piactl get region");
+        // if not, connect it.
+        ////////
+        // else, get region and ip is it connected to.
+        HandleVPN.displayCurrentRegionAndIP();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            Disp.anyType(line);
-        }
+        HandleVPN.displayGlobalState();
     }
 
 
 
-    public static void main_(String[] args) throws IOException
+    public static void main(String[] args) throws Exception
     {
         Disp.shortMsgLine(projectName, false);
 
@@ -67,7 +66,8 @@ public class Main {
         double start = System.currentTimeMillis(); // start counter
         SaveManager.setSavePath(save_path);
 
-        HandleVPN.displayBeginningCountryAndPool();
+        HandleVPN.initAllRegions();
+        HandleVPN.displayCurrentRegionAndIP();
 
         // restart infinitely until everything is scraped
         try {
@@ -224,11 +224,15 @@ public class Main {
 
                     // after too many request failures...
                     if (nb_max_trys >= nbTrys) {
-                        // first try to fix the problem by changing IP in the same pool.
-                        // TODO
+                        // first try to fix the problem by changing IP in the same region.
+                        IP.handleChange();
+                        HandleVPN.displayCurrentRegionAndIP();
+                        HandleVPN.displayGlobalState();
                     } else {
-                        // then try to switch to the next pool
-                        // TODO
+                        // then try to switch to the next region
+                        Region.handleChange();
+                        HandleVPN.displayCurrentRegionAndIP();
+                        HandleVPN.displayGlobalState();
                         // resets counters
                         nbTrys = 0;
                         nbIPChanges = 0;
@@ -294,7 +298,7 @@ public class Main {
                         "evol taux chomage",
                         "evol taux activite"
                 };
-                writeLine(bw, headers, true);
+                writeLineCSV(bw, headers, true);
 
 //                for (String header : headers) { bw.write(header + ","); }
 //                bw.newLine();
@@ -370,9 +374,9 @@ public class Main {
                         employmentRateEvol
                 };
 
-                writeLine(bw, main_attrs, false);
-                writeLine(bw, prices_attrs, false);
-                writeLine(bw, local_attrs, true);
+                writeLineCSV(bw, main_attrs, false);
+                writeLineCSV(bw, prices_attrs, false);
+                writeLineCSV(bw, local_attrs, true);
 
 //                for (String attr : main_attrs) { bw.write(attr + ","); }
 //                for (String attr : prices_attrs) { bw.write(attr + ","); }
@@ -389,7 +393,7 @@ public class Main {
     }
 
 
-    private static void writeLine(BufferedWriter bw, String[] attrsToWrite, boolean endOfLine) {
+    private static void writeLineCSV(BufferedWriter bw, String[] attrsToWrite, boolean endOfLine) {
         try
         {
             int attr_index = 0;
