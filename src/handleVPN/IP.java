@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class IP implements Serializable {
     // above which number of failures each IP is considered blocked
-    public static final int nb_max_each_ip = 3;
+    public static final int nb_max_each_ip = 2;
 
     public static final String NO_IP = "Unknown";
     public static final String NO_DATE = "°";

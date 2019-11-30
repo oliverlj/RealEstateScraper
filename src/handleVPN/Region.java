@@ -55,14 +55,15 @@ public class Region implements Serializable {
         // different ways of saying a region is saturated
 //        int ip_saturation_limit = 2 + this.getIpAddresses().size() / 3; // with / 2
 //        int ip_saturation_limit = 2 + this.getIpAddresses().size() / 4; // without / 2
-        int ip_saturation_limit = 3 + this.getIpAddresses().size() / 6; // ???
+//        int ip_saturation_limit = 3 + this.getIpAddresses().size() / 6; // both
+        int ip_saturation_limit = 3 + this.getIpAddresses().size() / 12; // without / 2
 
         Disp.progress("IP saturation rate of " + this.getName(), blockedCounter, this.getIpAddresses().size());
         Disp.progress("IP saturation limit of " + this.getName(), blockedCounter, ip_saturation_limit);
         Disp.star();
 
-//        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > (ip_saturation_limit) / 2;
-        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > (ip_saturation_limit);
+//        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > ip_saturation_limit / 2;
+        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > ip_saturation_limit;
 //        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > this.getIpAddresses().size() / 6;
 //        boolean saturated = this.getIpAddresses().size() >= 0 && blockedCounter > nb_max_blocked_addresses;
 //        boolean saturated = this.getIpAddresses().size() >= Region.nb_max_blocked_addresses;
