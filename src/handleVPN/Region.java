@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Region implements Serializable {
-    private static final int nb_max_blocked_addresses = 5 ; // above which region is considered
+    private static final int nb_max_blocked_addresses = 10 ; // above which region is considered completely drained
 
     private static ArrayList<Region> regions = new ArrayList<>();
 
@@ -45,8 +45,14 @@ public class Region implements Serializable {
         for (IP ip : this.getIpAddresses()) {
             if (ip.isBlocked()) blockedCounter ++;
         }
-        if (this.getIpAddresses().size() == blockedCounter) return true;
-        else return false;
+//        Disp.progress(this.getName(), blockedCounter, this.getIpAddresses().size());
+
+        // different ways of saying a region is saturated
+//        boolean saturated = this.getIpAddresses().size() > 0 && this.getIpAddresses().size() == blockedCounter;
+        boolean saturated = this.getIpAddresses().size() > Region.nb_max_blocked_addresses;
+
+//        Disp.anyType("saturated: " + saturated);
+        return saturated;
     }
 
     public static ArrayList<Region> getRegions() {
@@ -61,12 +67,13 @@ public class Region implements Serializable {
 
     public static Region handleChange()
     {
+        Disp.anyType(">>> Handling region change...");
+
         Region nextRegion = getClosestUnsaturatedRegions().get(0);
-        if (nextRegion == null)
         ShellWrapper.execute("piactl set region " + nextRegion.getName());
         Disp.anyType("verif: " + getCurrent());
-        // now save
-        SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
+        // now save : not ne
+//        SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
         return nextRegion;
     }
 
@@ -75,8 +82,7 @@ public class Region implements Serializable {
         // seems not necesary to wait for region
         String currentRegion = ShellWrapper.execute("piactl get region").get(0);
 //        Disp.anyType(currentRegion);
-        Region region = getFromString(currentRegion);
-        return region;
+        return getFromString(currentRegion);
     }
 
     private static Region getFromString(String s)
@@ -89,11 +95,14 @@ public class Region implements Serializable {
 
     private static ArrayList<Region> getClosestUnsaturatedRegions()
     {
-        ArrayList<Region> out = new ArrayList<>();
         // first browse all the 0 then all the 1 all the 2 then all the 3
         for (int i=0 ; i<4; i++) {
+            ArrayList<Region> out = new ArrayList<>();
             for (Region region : getRegionsByDelayRange(i)) {
-                if (!region.isSaturated()) out.add(region);
+                if (!region.isSaturated()) {
+                    out.add(region);
+//                    Disp.anyType("unsaturated "+i+": " + region);
+                }
             }
             if (!out.isEmpty()) return out;
         }

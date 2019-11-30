@@ -32,13 +32,13 @@ public class HandleVPN { // TODO rewrite
             Region.getRegions().add(new Region("luxembourg", 0));
             Region.getRegions().add(new Region("spain", 0));
             Region.getRegions().add(new Region("italy", 0));
+            Region.getRegions().add(new Region("austria", 0));
             // 1 = quite close (central-eastern Europe)
             Region.getRegions().add(new Region("czech-republic", 1));
             Region.getRegions().add(new Region("denmark", 1));
             Region.getRegions().add(new Region("sweden", 1));
             Region.getRegions().add(new Region("norway", 1));
             Region.getRegions().add(new Region("finland", 1));
-            Region.getRegions().add(new Region("austria", 1));
             Region.getRegions().add(new Region("poland", 1));
             Region.getRegions().add(new Region("hungary", 1));
             Region.getRegions().add(new Region("romania", 1));

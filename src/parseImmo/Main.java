@@ -11,6 +11,7 @@ import parseDepartment.ParseDepartment;
 import handleVPN.*;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 
@@ -134,7 +135,6 @@ public class Main {
             SaveManager.objectSave(filename_cities_urls + extension_save , urls_cities);
         }
 
-
         // 2. parse cities from disk or from the net
         // parse main city list from urls
         ArrayList<City> cities;
@@ -158,7 +158,7 @@ public class Main {
         Disp.htag(); Disp.htag(); Disp.htag();
         int nbTrys = 0;
         int nbDone = 0;
-        int nbIPChanges = 0;
+//        int nbIPChanges = 0;
         boolean needsSave = false;
 
         // the loop ;)
@@ -185,7 +185,7 @@ public class Main {
                     // puts the trigger on after a city has been scraped since last save
                     needsSave = true;
 
-                    // then, display progress for cities BUT ONLY IF IT HAS NOT BEEN ALREADY PARSEDgit
+                    // then, display progress for cities BUT ONLY IF IT HAS NOT BEEN ALREADY PARSED
                     Disp.progress("cities", nbDone, urls_cities.size());
 
                 } catch (Exception | UncheckedIOException e) {
@@ -210,24 +210,29 @@ public class Main {
                     // save actual progress only first time, only if changes have been made
                     if (nbTrys == 1 && needsSave)
                     {
+                        // mark current IP as used & update last try date
+                        IP.getCurrent().setTimesUsed(IP.getCurrent().getTimesUsed() + 1);
+                        IP.getCurrent().setLastTry(LocalDateTime.now());
+
                         Disp.star();
                         SaveManager.objectSave(filename_cities_list + extension_save, cities);
-                        nbIPChanges ++; // increment for further count
 
                         // puts the trigger off until a new city gets scraped
                         needsSave = false;
+//                        nbIPChanges ++; // increment for further count
                     }
 
                     // change IP as much as possible...
                     if (! Region.getCurrent().isSaturated()) {
                         // first try to fix the problem by changing IP in the same region.
                         IP.handleChange();
+
                     // ...when limit reached go to next region
                     } else {
                         // then try to switch to the next region
                         Region.handleChange();
                         // resets counters : not useful anymore
-//                        nbTrys = 0;
+                        nbTrys = 0;
 //                        nbIPChanges = 0;
                     }
                     // show current VPN state

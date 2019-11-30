@@ -1,11 +1,13 @@
 package handleVPN;
 
+import myJavaClasses.Disp;
 import myJavaClasses.SaveManager;
 import myJavaClasses.ShellWrapper;
 import parseImmo.Main;
 
 import java.io.Serializable;
 import java.sql.Time;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class IP implements Serializable {
@@ -13,6 +15,7 @@ public class IP implements Serializable {
 
     private String address;
     private int timesUsed = 0;
+    private LocalDateTime lastTry;
 
     public IP(String address) {
         this.address = address;
@@ -20,7 +23,10 @@ public class IP implements Serializable {
 
     @Override
     public String toString() {
-        return this.getAddress() + " (used " + this.getTimesUsed() + " times)";
+        return this.getAddress() +
+                " (used " + this.getTimesUsed() +
+                " times — last try was on " + this.getLastTry() +
+                ")";
     }
 
 
@@ -36,6 +42,14 @@ public class IP implements Serializable {
         this.timesUsed = timesUsed;
     }
 
+    public LocalDateTime getLastTry() {
+        return lastTry;
+    }
+
+    public void setLastTry(LocalDateTime lastTry) {
+        this.lastTry = lastTry;
+    }
+
     public boolean isBlocked() {
         return this.timesUsed > 0;
     }
@@ -44,14 +58,17 @@ public class IP implements Serializable {
 
     public static IP handleChange()
     {
-        // 1) increment current ip counter
-        getCurrent().setTimesUsed(getCurrent().getTimesUsed() + 1);
+        Disp.anyType(">>> Handling IP change on same region...");
+
+        // the original order is indicated by n) :
         // 2) on/off : gives a new ip
         ShellWrapper.execute("piactl disconnect");
         ShellWrapper.execute("piactl connect");
         // 3) new IP is ?
         // 4) does it already exist ?
         IP newIP = getCurrent();
+        // 1) increment current ip counter
+        getCurrent().setTimesUsed(getCurrent().getTimesUsed() + 1);
         // now save
         SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
         return newIP;
@@ -65,8 +82,7 @@ public class IP implements Serializable {
         }
 //        Disp.anyType(s);
         // now determine if the IP already exists or not
-        IP ip = createOrGet(s);
-        return ip;
+        return createOrGet(s);
     }
 
     private static IP getFromString(String s)
