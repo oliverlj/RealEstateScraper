@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class Region implements Serializable {
+    private static final int nb_max_blocked_addresses = 5 ; // above which region is considered
+
     private static ArrayList<Region> regions = new ArrayList<>();
 
     private String name;
@@ -29,16 +31,8 @@ public class Region implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getDelayRange() {
         return delayRange;
-    }
-
-    public void setDelayRange(int delayRange) {
-        this.delayRange = delayRange;
     }
 
     public ArrayList<IP> getIpAddresses() {
@@ -49,7 +43,7 @@ public class Region implements Serializable {
     {
         int blockedCounter = 0;
         for (IP ip : this.getIpAddresses()) {
-            if (ip.getTimesUsed() > 0) blockedCounter ++;
+            if (ip.isBlocked()) blockedCounter ++;
         }
         if (this.getIpAddresses().size() == blockedCounter) return true;
         else return false;
@@ -68,14 +62,15 @@ public class Region implements Serializable {
     public static Region handleChange()
     {
         Region nextRegion = getClosestUnsaturatedRegions().get(0);
+        if (nextRegion == null)
         ShellWrapper.execute("piactl set region " + nextRegion.getName());
         Disp.anyType("verif: " + getCurrent());
         // now save
-        SaveManager.objectSave(Main.filename_vpn_state, Region.getRegions());
+        SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
         return nextRegion;
     }
 
-    static Region getCurrent()
+    public static Region getCurrent()
     {
         // seems not necesary to wait for region
         String currentRegion = ShellWrapper.execute("piactl get region").get(0);
@@ -102,7 +97,7 @@ public class Region implements Serializable {
             }
             if (!out.isEmpty()) return out;
         }
-        return out;
+        return null;
     }
 
     private static ArrayList<Region> getRegionsByDelayRange(int delayRange)

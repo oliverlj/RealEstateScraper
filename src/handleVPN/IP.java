@@ -9,12 +9,10 @@ import java.sql.Time;
 import java.util.ArrayList;
 
 public class IP implements Serializable {
-    private static ArrayList<IP> ips = new ArrayList<>();
+    public static final String NO_IP = "Unknown";
 
     private String address;
     private int timesUsed = 0;
-
-    public static final String NO_IP = "Unknown";
 
     public IP(String address) {
         this.address = address;
@@ -42,10 +40,6 @@ public class IP implements Serializable {
         return this.timesUsed > 0;
     }
 
-    public static ArrayList<IP> getIps() {
-        return ips;
-    }
-
     ////////////////////////// STATIC //////////////////////////
 
     public static IP handleChange()
@@ -59,11 +53,11 @@ public class IP implements Serializable {
         // 4) does it already exist ?
         IP newIP = getCurrent();
         // now save
-        SaveManager.objectSave(Main.filename_vpn_state, Region.getRegions());
+        SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
         return newIP;
     }
 
-    static IP getCurrent()
+    public static IP getCurrent()
     {
         String s = NO_IP;
         while (s.equals(NO_IP)) {

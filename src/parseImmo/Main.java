@@ -16,6 +16,7 @@ import java.util.ArrayList;
 
 public class Main {
     private static final String projectName = "RealEstateScraper" ;
+    public static final String NO_DATA = "null";
 
     // urls
     private static final String url_main = "https://www.meilleursagents.com" ;
@@ -28,20 +29,15 @@ public class Main {
     private static final String root_path = "/Users/c/Documents/Local Code/";
     private static final String save_path = root_path + projectName + "/" + save_folder;
     private static final String output_path = root_path + projectName + "/" + output_folder;
-
-    // file names
-    private static final String filename_cities_urls = "urls";
-    private static final String filename_cities_list = "cities";
+    // extensions
+    public static final String extension_save = ".immo";
+    public static final String extension_csv = ".csv";
+    // filenames
+    public static final String filename_cities_urls = "urls";
+    public static final String filename_cities_list = "cities";
     public static final String filename_vpn_state = "regions";
-    // file extensions
-    private static final String extension_save = ".immo";
-    private static final String extension_csv = ".csv";
-    private static final String NO_DATA = "null";
 
-    private static final int nb_max_trys = 5 ; // number of tries before changing pool
-    private static final int max_pool_change = 52; // at 53, starts again at the beginning (Australia)
 
-    //////////////////////////////////////////////////////////
 
     public static void main_(String[] args) throws Exception
     {
@@ -56,7 +52,7 @@ public class Main {
         HandleVPN.displayGlobalState();
     }
 
-
+    ////////////////////////////////////////////////////////////////////////////////////////
 
     public static void main(String[] args) throws Exception
     {
@@ -77,16 +73,16 @@ public class Main {
             writeCitiesAsCSV(filename_cities_list + extension_csv , allCities , true);
 
         } catch (Exception | UncheckedIOException e1) {
-            Disp.exc("Exception level 1 : [ " + e1 + " ]");
+            Disp.exc("Exception level 1 : [ v" + e1 + " ]");
 //            Disp.exc(e.getCause() + " | " + e.getMessage());
             e1.printStackTrace();
             Disp.star();
 
             // now let's start again and again and again ... FOREVAH ;)
             try {
-                main(args);
+//                main(args);
             } catch (Exception | UncheckedIOException e2) {
-                main(args);
+//                main(args);
 
                 Disp.exc("Exception level 2 : [ " + e2 + " ]");
 //                Disp.exc(e1.getCause() + " | " + e1.getMessage());
@@ -222,21 +218,21 @@ public class Main {
                         needsSave = false;
                     }
 
-                    // after too many request failures...
-                    if (nb_max_trys >= nbTrys) {
+                    // change IP as much as possible...
+                    if (! Region.getCurrent().isSaturated()) {
                         // first try to fix the problem by changing IP in the same region.
                         IP.handleChange();
-                        HandleVPN.displayCurrentRegionAndIP();
-                        HandleVPN.displayGlobalState();
+                    // ...when limit reached go to next region
                     } else {
                         // then try to switch to the next region
                         Region.handleChange();
-                        HandleVPN.displayCurrentRegionAndIP();
-                        HandleVPN.displayGlobalState();
-                        // resets counters
-                        nbTrys = 0;
-                        nbIPChanges = 0;
+                        // resets counters : not useful anymore
+//                        nbTrys = 0;
+//                        nbIPChanges = 0;
                     }
+                    // show current VPN state
+                    HandleVPN.displayCurrentRegionAndIP();
+                    HandleVPN.displayGlobalState();
 
                     index_city--; // stay on that level. Must be parsed
                 }

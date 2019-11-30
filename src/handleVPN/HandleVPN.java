@@ -12,7 +12,7 @@ public class HandleVPN { // TODO rewrite
     public static void initAllRegions() throws Exception
     {
         // first try to load
-        ArrayList<Region> initRegions = (ArrayList<Region>) SaveManager.objectLoad(Main.filename_vpn_state, true);
+        ArrayList<Region> initRegions = (ArrayList<Region>) SaveManager.objectLoad(Main.filename_vpn_state + Main.extension_save, true);
         if (initRegions == null) initRegions = new ArrayList<>();
         Region.setRegions(initRegions);
 
