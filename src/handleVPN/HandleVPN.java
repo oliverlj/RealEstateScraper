@@ -1,18 +1,27 @@
 package handleVPN;
 
+import jdk.nashorn.tools.Shell;
 import myJavaClasses.Disp;
 import myJavaClasses.SaveManager;
+import myJavaClasses.ShellWrapper;
 import parseImmo.Main;
 
 import java.util.ArrayList;
 
-public class HandleVPN { // TODO rewrite
+import static handleVPN.IP.NO_IP;
+import static handleVPN.IP.getCurrent;
+
+public class HandleVPN {
     // this class will contain all methods and logic to change region | IP
     
     public static void initAllRegions() throws Exception
     {
+        // if IP address is Unknown on loading, connect first.
+        if (ShellWrapper.execute("piactl get vpnip").equals(NO_IP)) ShellWrapper.execute("piactl activate");
+
         // first try to load
-        ArrayList<Region> initRegions = (ArrayList<Region>) SaveManager.objectLoad(Main.filename_vpn_state + Main.extension_save, true);
+        ArrayList<Region> initRegions = (ArrayList<Region>) SaveManager.objectLoad(
+                Main.filename_vpn_state + Main.extension_save, true);
         if (initRegions == null) initRegions = new ArrayList<>();
         Region.setRegions(initRegions);
 
@@ -72,9 +81,17 @@ public class HandleVPN { // TODO rewrite
             Region.getRegions().add(new Region("hong-kong", 3));
             Region.getRegions().add(new Region("japan", 3));
             Region.getRegions().add(new Region("new-zealand", 3));
-        } else {
-            Disp.anyType(">>> Regions have already been initiated :");
-            HandleVPN.displayGlobalState();
+        }
+
+        // inits current state
+        if (IP.getCurrent().equals(NO_IP))
+        {
+            ShellWrapper.execute("piactl connect");
+
+            String s = IP.NO_IP;
+            while (s.equals(IP.NO_IP)) {
+                s = ShellWrapper.execute("piactl get vpnip").get(0);
+            }
         }
     }
     
@@ -90,10 +107,14 @@ public class HandleVPN { // TODO rewrite
     public static void displayGlobalState()
     {
         for (Region region : Region.getRegions()) {
-            Disp.anyType(region);
-            for (IP ip : region.getIpAddresses()) {
-                Disp.anyType("- " + ip);
+            if (! region.getIpAddresses().isEmpty())
+            {
+                Disp.anyType(region);
+                for (IP ip : region.getIpAddresses()) {
+                    Disp.anyType("- " + ip);
+                }
             }
+
         }
         Disp.star();
     }

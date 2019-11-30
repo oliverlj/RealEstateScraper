@@ -8,10 +8,12 @@ import parseImmo.Main;
 import java.io.Serializable;
 import java.sql.Time;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class IP implements Serializable {
     public static final String NO_IP = "Unknown";
+    public static final String NO_DATE = "°";
 
     private String address;
     private int timesUsed = 0;
@@ -19,13 +21,20 @@ public class IP implements Serializable {
 
     public IP(String address) {
         this.address = address;
+        this.lastTry = LocalDateTime.now();
     }
 
     @Override
     public String toString() {
+        String lastTry_raw;
+        try {
+             lastTry_raw = this.getLastTry().format(DateTimeFormatter.ofPattern("uuuu/MM/dd/ HH:mm.ss"));
+        } catch (NullPointerException npEx) {
+             lastTry_raw = NO_DATE;
+        }
         return this.getAddress() +
                 " (used " + this.getTimesUsed() +
-                " times — last try was on " + this.getLastTry() +
+                " times — last try was on " + lastTry_raw +
                 ")";
     }
 
@@ -69,6 +78,7 @@ public class IP implements Serializable {
         IP newIP = getCurrent();
         // 1) increment current ip counter
         getCurrent().setTimesUsed(getCurrent().getTimesUsed() + 1);
+        getCurrent().setLastTry(LocalDateTime.now());
         // now save
         SaveManager.objectSave(Main.filename_vpn_state + Main.extension_save, Region.getRegions());
         return newIP;

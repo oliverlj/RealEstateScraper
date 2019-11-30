@@ -5,6 +5,7 @@ It also handles Private Internet Acces VPN to change IP as much as needed to byp
 
 ## What's new ?
 ### To-do
+- Fix problem with program not loading if VPN deactivated —> run with PIA already on for now
 - Record exactly all the dates and time where the IP address has been tested and its disponibility for each datetime
 ### Done
 - Handling PIA VPN `piactl` command line utility that has been added in update 1.6, instead of horrible manual AppleScript clicking —> way cleaner and resilient

@@ -42,15 +42,14 @@ public class Main {
 
     public static void main_(String[] args) throws Exception
     {
-        HandleVPN.initAllRegions();
+//        HandleVPN.initAllRegions();
         // check if VPN is connected or not.
 
         // if not, connect it.
         ////////
         // else, get region and ip is it connected to.
-        HandleVPN.displayCurrentRegionAndIP();
-
-        HandleVPN.displayGlobalState();
+//        HandleVPN.displayCurrentRegionAndIP();
+//        HandleVPN.displayGlobalState();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +155,7 @@ public class Main {
         }
 
         Disp.htag(); Disp.htag(); Disp.htag();
-        int nbTrys = 0;
+        int nbRetries = 0;
         int nbDone = 0;
 //        int nbIPChanges = 0;
         boolean needsSave = false;
@@ -180,7 +179,7 @@ public class Main {
                     cities.add(city);
 
                     // success : resets try counter and increments done counter
-                    nbTrys = 0;
+                    nbRetries = 0;
                     nbDone++;
                     // puts the trigger on after a city has been scraped since last save
                     needsSave = true;
@@ -200,7 +199,7 @@ public class Main {
                     */
 
                     // failure : increments try counter
-                    nbTrys ++;
+                    nbRetries ++;
 
                     // disp err msg
                     Disp.exc("Quota maximum reached for this IP -- Let's try again with another one ;)");
@@ -208,19 +207,22 @@ public class Main {
                     e.printStackTrace();
 
                     // save actual progress only first time, only if changes have been made
-                    if (nbTrys == 1 && needsSave)
+                    if (nbRetries == 1)
                     {
                         // mark current IP as used & update last try date
                         IP.getCurrent().setTimesUsed(IP.getCurrent().getTimesUsed() + 1);
                         IP.getCurrent().setLastTry(LocalDateTime.now());
+                        SaveManager.objectSave(filename_vpn_state + extension_save, Region.getRegions());
 
-                        Disp.star();
-                        SaveManager.objectSave(filename_cities_list + extension_save, cities);
-
-                        // puts the trigger off until a new city gets scraped
-                        needsSave = false;
+                        if (needsSave)
+                        {
+                            Disp.star();
+                            SaveManager.objectSave(filename_cities_list + extension_save, cities);
+                            needsSave = false; // puts the trigger off until a new city gets scraped
 //                        nbIPChanges ++; // increment for further count
+                        }
                     }
+
 
                     // change IP as much as possible...
                     if (! Region.getCurrent().isSaturated()) {
@@ -232,7 +234,7 @@ public class Main {
                         // then try to switch to the next region
                         Region.handleChange();
                         // resets counters : not useful anymore
-                        nbTrys = 0;
+                        nbRetries = 0;
 //                        nbIPChanges = 0;
                     }
                     // show current VPN state
@@ -248,7 +250,7 @@ public class Main {
 
             } else {
                 // success : resets try counter and increment done counter
-                nbTrys = 0;
+                nbRetries = 0;
                 nbDone++;
             }
 
